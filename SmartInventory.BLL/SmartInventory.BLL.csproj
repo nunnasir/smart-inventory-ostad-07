@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartInventory.DAL\SmartInventory.DAL.csproj" />
+    <ProjectReference Include="..\SmartInventory.Model\SmartInventory.Model.csproj" />
+  </ItemGroup>
+
+</Project>
