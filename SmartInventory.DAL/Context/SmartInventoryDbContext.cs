@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SmartInventory.Model;
 
-namespace SmartInventory.DAL;
+namespace SmartInventory.DAL.Context;
 public class SmartInventoryDbContext : DbContext
 {
     public SmartInventoryDbContext(DbContextOptions<SmartInventoryDbContext> options) : base(options)
     {
     }
 
-    DbSet<Product> Products { get; set; }
+    public DbSet<Product> Products { get; set; }
 }

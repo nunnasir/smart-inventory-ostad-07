@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using SmartInventory.DAL;
+using SmartInventory.DAL.Context;
+using SmartInventory.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,9 @@ builder.Services.AddDbContext<SmartInventoryDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+builder.Services.AddRepositories();
+builder.Services.AddServices();
 
 var app = builder.Build();
 
