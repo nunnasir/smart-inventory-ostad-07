@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartInventory.BLL.Interfaces;
+using SmartInventory.Model;
 
 namespace SmartInventory.Web.Controllers
 {
@@ -12,18 +13,35 @@ namespace SmartInventory.Web.Controllers
             _productService = productService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
+        
         {
-            var product = new Model.Product
-            {
-                Name = "Sample Product",
-                Description = "This is a sample product.",
-                Price = 19.99M
-            };
+            var products = await _productService.GetAllAsync();
 
-            _productService.AddAsync(product);
+            return View(products.Data);
+        }
 
+        public IActionResult Create()
+        {
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(Product product)
+        {
+            await _productService.AddAsync(product);
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _productService.DeleteAsync(id);
+            if (result.Success)
+            {
+                return RedirectToAction("Index");
+            }
+            ModelState.AddModelError(string.Empty, result.Error ?? "An error occured while updating the product");
+            return BadRequest();
         }
     }
 }
