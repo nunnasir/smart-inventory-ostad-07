@@ -28,5 +28,5 @@ public interface IRepository<TEntity,TKey, TContext>
 
     Task UpdateAsync(TEntity entity, params string[] updateProperties);
 
-    Task DeleteAsync(TEntity entity);
+    Task DeleteAsync(object id);
 }

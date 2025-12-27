@@ -10,6 +10,14 @@
     <link rel="stylesheet" href="~/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
     <link rel="stylesheet" href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <link rel="stylesheet" href="~/plugins/jqvmap/jqvmap.min.css">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+    <!-- Toastr -->
+    <link rel="stylesheet" href="~/plugins/toastr/toastr.min.css">
+
     <link rel="stylesheet" href="~/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="~/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
     <link rel="stylesheet" href="~/plugins/daterangepicker/daterangepicker.css">
@@ -58,13 +66,13 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="./index.html" class="nav-link active">
+                                    <a asp-action="Index" asp-controller="Product" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>List</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
+                                    <a asp-action="Create" asp-controller="Product" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Add</p>
                                     </a>
@@ -128,19 +136,7 @@
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
             <div class="content-header">
-                <div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1 class="m-0 text-dark">Dashboard</h1>
-                        </div><!-- /.col -->
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                <li class="breadcrumb-item active">Dashboard v1</li>
-                            </ol>
-                        </div><!-- /.col -->
-                    </div><!-- /.row -->
-                </div><!-- /.container-fluid -->
+                @await Html.PartialAsync("_ContentHeader")
             </div>
             <!-- /.content-header -->
             <!-- Main content -->
@@ -150,7 +146,7 @@
                 </div>
             </section>
         </div>
-    
+
         <footer class="main-footer">
             <strong>Copyright &copy; @DateTime.Now.Year <a href="https://ostad.app" target="_blank">Ostad</a>.</strong>
             All rights reserved.
@@ -164,7 +160,7 @@
             <!-- Control sidebar content goes here -->
         </aside>
     </div>
-    
+
     <script src="~/plugins/jquery/jquery.min.js"></script>
     <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
     <script>
@@ -181,9 +177,64 @@
     <script src="~/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
     <script src="~/plugins/summernote/summernote-bs4.min.js"></script>
     <script src="~/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+    <script src="~/plugins/toastr/toastr.min.js"></script>
     <script src="~/dist/js/adminlte.js"></script>
     <script src="~/dist/js/pages/dashboard.js"></script>
     <script src="~/dist/js/demo.js"></script>
+
+    <script>
+        // Display TempData messages using Toastr
+        $(function () {
+            @if (TempData["SuccessMessage"] != null)
+            {
+                    <text>
+                    toastr.success('@Html.Raw(TempData["SuccessMessage"])', 'Success', {
+                        closeButton: true,
+                        progressBar: true,
+                        timeOut: 5000,
+                        positionClass: 'toast-top-right'
+                    });
+                    </text>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                    <text>
+                    toastr.error('@Html.Raw(TempData["ErrorMessage"])', 'Error', {
+                        closeButton: true,
+                        progressBar: true,
+                        timeOut: 5000,
+                        positionClass: 'toast-top-right'
+                    });
+                    </text>
+            }
+
+            @if (TempData["InfoMessage"] != null)
+            {
+                    <text>
+                    toastr.info('@Html.Raw(TempData["InfoMessage"])', 'Info', {
+                        closeButton: true,
+                        progressBar: true,
+                        timeOut: 5000,
+                        positionClass: 'toast-top-right'
+                    });
+                    </text>
+            }
+
+            @if (TempData["WarningMessage"] != null)
+            {
+                    <text>
+                    toastr.warning('@Html.Raw(TempData["WarningMessage"])', 'Warning', {
+                        closeButton: true,
+                        progressBar: true,
+                        timeOut: 5000,
+                        positionClass: 'toast-top-right'
+                    });
+                    </text>
+            }
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

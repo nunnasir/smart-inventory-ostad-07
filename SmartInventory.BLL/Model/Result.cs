@@ -6,11 +6,11 @@ public class Result<T>
     public string Error { get; set; } = string.Empty;
     public T? Data { get; set; }
 
-    public Result(bool Success, T? data, string? error)
+    public Result(bool success, T? data, string? error)
     {
-        Success = Success;
+        Success = success;
         Data = data;
-        Error = error;
+        Error = error ?? string.Empty;
     }
 
     public static Result<T> SuccessResult(T data)

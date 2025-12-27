@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SmartInventory.BLL\SmartInventory.BLL.csproj" />
-    <ProjectReference Include="..\SmartInventory.Model\SmartInventory.Model.csproj" />
+    <ProjectReference Include="..\SmartInventory.Contract\SmartInventory.Contract.csproj" />
   </ItemGroup>
 
 </Project>

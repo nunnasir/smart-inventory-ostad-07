@@ -111,7 +111,14 @@ public abstract class Repository<TEntity, TKey, TContext>
         }
     }
 
-    public virtual async Task DeleteAsync(TEntity entity)
+    public virtual async Task DeleteAsync(object id)
+    {
+        var entity = await _dbSet.FindAsync(id);
+
+        await DeleteAsync(entity);
+    }
+
+    private async Task DeleteAsync(TEntity entity)
     {
         if (_context.Entry(entity).State == EntityState.Detached)
         {

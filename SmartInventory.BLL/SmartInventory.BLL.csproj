@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SmartInventory.Contract\SmartInventory.Contract.csproj" />
     <ProjectReference Include="..\SmartInventory.DAL\SmartInventory.DAL.csproj" />
     <ProjectReference Include="..\SmartInventory.Model\SmartInventory.Model.csproj" />
   </ItemGroup>
