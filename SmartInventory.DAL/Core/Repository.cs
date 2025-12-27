@@ -74,6 +74,38 @@ public abstract class Repository<TEntity, TKey, TContext>
         return result;
     }
 
+    public virtual async Task<(IList<TResult> Items, int Total, int TotalFilter)> GetAsync<TResult>(Expression<Func<TEntity, TResult>> selector,
+                            Expression<Func<TEntity, bool>>? predicate = null,
+                            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
+                            Func<IQueryable<TEntity>, IIncludableQueryable<TEntity, object>>? include = null,
+                            int pageIndex = 1, int pageSize = 10,
+                            bool disableTracking = true)
+    {
+        IQueryable<TEntity> query = _dbSet.AsQueryable();
+
+        int total = await query.CountAsync();
+        int totalFilter = total;
+
+        if (include != null)
+            query = include(query);
+
+        if (predicate != null)
+        {
+            query = query.Where(predicate);
+            totalFilter = await query.CountAsync();
+        }
+
+        if (orderBy != null)
+            query = orderBy(query);
+
+        if (disableTracking)
+            query = query.AsNoTracking();
+
+        var result = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).Select(selector).ToListAsync();
+
+        return (result, total, totalFilter);
+    }
+
     public virtual async Task<TEntity> GetByIdAsync(object id)
     {
         return await _dbSet.FindAsync(id);

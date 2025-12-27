@@ -1,7 +1,9 @@
-﻿using SmartInventory.BLL.Interfaces;
+﻿using SmartInventory.BLL.Helpers;
+using SmartInventory.BLL.Interfaces;
 using SmartInventory.BLL.Mapping;
 using SmartInventory.BLL.Model;
 using SmartInventory.Contract.Request;
+using SmartInventory.Contract.Response;
 using SmartInventory.DAL.Interfaces;
 using SmartInventory.Model;
 
@@ -21,6 +23,14 @@ public class ProductService : IProductService
         if (product is null)
         {
             return Result<int>.FaileResult("Product cannot be null.");
+        }
+
+        var existingProduct = await _productUnitOfWork.ProductRepository.GetAsync(
+            x => x.Id, x => x.Name == product.Name, null, null, false);
+
+        if (existingProduct.Any())
+        {
+            return Result<int>.FaileResult("A product with the same name already exists.");
         }
 
         try
@@ -114,4 +124,88 @@ public class ProductService : IProductService
 
         return Result<int>.SuccessResult(model.Id);
     }
+
+    public async Task<DataTablesResponse<Product>> GetDataTablesAsync(DataTablesRequest request)
+    {
+        try
+        {
+            // Build search predicate
+            var searchPredicate = DataTablesHelper.BuildSearchPredicate<Product>(
+                request,
+                searchValue =>
+                {
+                    var lowerSearch = searchValue.ToLower();
+                    return p =>
+                        p.Name.ToLower().Contains(lowerSearch) ||
+                        p.Description.ToLower().Contains(lowerSearch) ||
+                        p.Price.ToString().Contains(searchValue) ||
+                        p.StockQuantity.ToString().Contains(searchValue);
+                }
+            );
+
+            // Build order by expression
+            Func<IQueryable<Product>, IOrderedQueryable<Product>>? orderBy = null;
+
+            if (request.Order != null && request.Order.Any() && request.Columns != null)
+            {
+                var order = request.Order.First();
+                var columnIndex = order.Column;
+                var isAscending = order.Dir.ToLower() == "asc";
+
+                if (columnIndex >= 0 && columnIndex < request.Columns.Count)
+                {
+                    var column = request.Columns[columnIndex];
+                    var columnKey = column.Data.ToLower();
+
+                    orderBy = columnKey switch
+                    {
+                        "name" => isAscending
+                            ? q => q.OrderBy(p => p.Name)
+                            : q => q.OrderByDescending(p => p.Name),
+                        "description" => isAscending
+                            ? q => q.OrderBy(p => p.Description)
+                            : q => q.OrderByDescending(p => p.Description),
+                        "price" => isAscending
+                            ? q => q.OrderBy(p => p.Price)
+                            : q => q.OrderByDescending(p => p.Price),
+                        "stockquantity" => isAscending
+                            ? q => q.OrderBy(p => p.StockQuantity)
+                            : q => q.OrderByDescending(p => p.StockQuantity),
+                        _ => null
+                    };
+                }
+            }
+
+            // Default ordering if no order specified
+            orderBy ??= q => q.OrderByDescending(p => p.Id);
+
+            // Calculate pagination
+            var (pageIndex, pageSize) = DataTablesHelper.CalculatePagination(request);
+
+            // Get Data from repository
+            var (items, total, totalFilter) = await _productUnitOfWork.ProductRepository.GetAsync(
+                p => p,
+                searchPredicate,
+                orderBy,
+                null,
+                pageIndex,
+                pageSize,
+                true);
+
+            return new DataTablesResponse<Product>
+            {
+                Draw = request.Draw,
+                RecordsTotal = total,
+                RecordsFiltered = totalFilter,
+                Data = items.ToList()
+            };
+
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
 }

@@ -15,6 +15,20 @@ namespace SmartInventory.Web.Controllers
 
         public IActionResult Index()
         {
+            // ViewBag
+            //ViewBag.Title = "Smart Inventory System";
+            //ViewBag.Total = 100;
+
+            // ViewData
+            //Dictionary<string, object>
+            //ViewData["Title"] = "Smart Inventory System";
+            //ViewData["Total"] = 100;
+
+            // TempData
+            //TempData["Success"] = "Successfully Saved";
+
+            // Model
+
             return View();
         }
 

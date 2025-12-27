@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SmartInventory.BLL.Interfaces;
 using SmartInventory.Contract.Request;
+using SmartInventory.Contract.Response;
 using SmartInventory.Model;
 
 namespace SmartInventory.Web.Controllers
@@ -14,12 +15,29 @@ namespace SmartInventory.Web.Controllers
             _productService = productService;
         }
 
-        public async Task<IActionResult> Index()
-        
+        public IActionResult Index()
         {
-            var products = await _productService.GetAllAsync();
+            return View();
+        }
 
-            return View(products.Data);
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> GetDataTables([FromForm] DataTablesRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest(new DataTablesResponse<Product>
+                {
+                    Draw = 0,
+                    RecordsTotal = 0,
+                    RecordsFiltered = 0,
+                    Data = new List<Product>(),
+                    Error = "Invalid request"
+                });
+            }
+
+            var response = await _productService.GetDataTablesAsync(request);
+            return Json(response);
         }
 
         public IActionResult Create()
@@ -30,7 +48,7 @@ namespace SmartInventory.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateProductRequest product)
         {
-            if(ModelState.IsValid == false)
+            if (ModelState.IsValid == false)
             {
                 return View(product);
             }
@@ -41,13 +59,17 @@ namespace SmartInventory.Web.Controllers
                 TempData["SuccessMessage"] = "Product created successfully!";
                 return RedirectToAction("Index");
             }
-            return View(product);
+            else
+            {
+                TempData["ErrorMessage"] = result.Error;
+                return View(product);
+            }
         }
 
         public async Task<IActionResult> Edit(int id)
         {
             var productResult = await _productService.GetByIdAsync(id);
-            
+
             if (!productResult.Success || productResult.Data == null)
             {
                 TempData["ErrorMessage"] = productResult.Error ?? "Product not found.";
@@ -81,7 +103,7 @@ namespace SmartInventory.Web.Controllers
                 TempData["SuccessMessage"] = "Product updated successfully!";
                 return RedirectToAction("Index");
             }
-            
+
             TempData["ErrorMessage"] = result.Error ?? "An error occurred while updating the product.";
             return View(product);
         }
@@ -89,7 +111,7 @@ namespace SmartInventory.Web.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var productResult = await _productService.GetByIdAsync(id);
-            
+
             if (!productResult.Success || productResult.Data == null)
             {
                 TempData["ErrorMessage"] = productResult.Error ?? "Product not found.";
@@ -108,7 +130,7 @@ namespace SmartInventory.Web.Controllers
                 TempData["SuccessMessage"] = "Product deleted successfully!";
                 return RedirectToAction("Index");
             }
-            
+
             TempData["ErrorMessage"] = result.Error ?? "An error occurred while deleting the product.";
             return RedirectToAction("Index");
         }

@@ -1,6 +1,4 @@
-﻿@model IEnumerable<SmartInventory.Model.Product>
-
-@{
+﻿@{
     ViewData["HeaderTitle"] = "Products";
     ViewData["BreadcrumbFirst"] = "Home";
     ViewData["BreadcrumbActive"] = "Products List";
@@ -15,6 +13,7 @@
                 </h3>
             </div>
             <div class="card-body">
+                @Html.AntiForgeryToken()
                 <style>
                     #productsDataTable th,
                     #productsDataTable td {
@@ -25,47 +24,14 @@
                 <table id="productsDataTable" class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th>
-                                @Html.DisplayNameFor(model => model.Name)
-                            </th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.Description)
-                            </th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.Price)
-                            </th>
-                            <th>
-                                @Html.DisplayNameFor(model => model.StockQuantity)
-                            </th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Stock Quantity</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Name)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Description)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Price)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.StockQuantity)
-                                </td>
-                                <td>
-                                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-sm btn-primary mr-1" })
-                                    @Html.ActionLink("Details", "Details", new { id = item.Id }, new { @class = "btn btn-sm btn-info mr-1" })
-                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display: inline;" onsubmit="return confirmDelete('@item.Name');">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
                     </tbody>
                 </table>
             </div>
@@ -85,9 +51,76 @@
     <script src="~/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
 
     <script>
-        $("#productsDataTable").DataTable({
-          "responsive": true,
-          "autoWidth": false,
+        $(document).ready(function () {
+            $("#productsDataTable").DataTable({
+                "processing": true,
+                "serverSide": true,
+                "responsive": true,
+                "autoWidth": false,
+                "ajax": {
+                    "url": "@Url.Action("GetDataTables", "Product")",
+                    "type": "POST",
+                    "data": function (d) {
+                        // Map DataTables parameters to our request format
+                        var request = {
+                            draw: d.draw,
+                            start: d.start,
+                            length: d.length,
+                            search: {
+                                value: d.search.value,
+                                regex: d.search.regex
+                            },
+                            order: d.order.map(function (o) {
+                                return {
+                                    column: o.column,
+                                    dir: o.dir
+                                };
+                            }),
+                            columns: d.columns.map(function (c) {
+                                return {
+                                    data: c.data,
+                                    name: c.name,
+                                    searchable: c.searchable,
+                                    orderable: c.orderable,
+                                    search: {
+                                        value: c.search.value,
+                                        regex: c.search.regex
+                                    }
+                                };
+                            })
+                        };
+                        return request;
+                    }
+                },
+                "columns": [
+                    { "data": "name", "name": "Name", "orderable": true, "searchable": true },
+                    { "data": "description", "name": "Description", "orderable": true, "searchable": true },
+                    { "data": "price", "name": "Price", "orderable": true, "searchable": true },
+                    { "data": "stockQuantity", "name": "StockQuantity", "orderable": true, "searchable": true },
+                    {
+                        "data": null,
+                        "name": "Action",
+                        "orderable": false,
+                        "searchable": false,
+                        "render": function (data, type, row) {
+                            var editUrl = '@Url.Action("Edit", "Product")/' + row.id;
+                            var detailsUrl = '@Url.Action("Details", "Product")/' + row.id;
+                            var deleteUrl = '@Url.Action("Delete", "Product")';
+                            var antiForgeryToken = '@Html.AntiForgeryToken()';
+
+                            var editLink = '<a href="' + editUrl + '" class="btn btn-sm btn-primary mr-1">Edit</a>';
+                            var detailsLink = '<a href="' + detailsUrl + '" class="btn btn-sm btn-info mr-1">Details</a>';
+                            var productName = (row.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                            var deleteForm = '<form action="' + deleteUrl + '" method="post" style="display: inline;" onsubmit="return confirmDelete(\'' + productName + '\');">' +
+                                '<input name="__RequestVerificationToken" type="hidden" value="' + $('input[name="__RequestVerificationToken"]').val() + '" />' +
+                                '<input type="hidden" name="id" value="' + row.id + '" />' +
+                                '<button type="submit" class="btn btn-sm btn-danger">Delete</button>' +
+                                '</form>';
+                            return editLink + ' ' + detailsLink + ' ' + deleteForm;
+                        }
+                    }
+                ]
+            });
         });
 
         function confirmDelete(productName) {
@@ -95,7 +128,3 @@
         }
     </script>
 }
-
-
-
-
