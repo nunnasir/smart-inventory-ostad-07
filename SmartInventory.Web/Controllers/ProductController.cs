@@ -86,6 +86,19 @@ namespace SmartInventory.Web.Controllers
             return View(product);
         }
 
+        public async Task<IActionResult> Details(int id)
+        {
+            var productResult = await _productService.GetByIdAsync(id);
+            
+            if (!productResult.Success || productResult.Data == null)
+            {
+                TempData["ErrorMessage"] = productResult.Error ?? "Product not found.";
+                return RedirectToAction("Index");
+            }
+
+            return View(productResult.Data);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
