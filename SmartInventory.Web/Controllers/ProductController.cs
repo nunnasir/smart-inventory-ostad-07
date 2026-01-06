@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SmartInventory.BLL.Interfaces;
 using SmartInventory.Contract.Request;
 using SmartInventory.Contract.Response;
@@ -6,6 +7,7 @@ using SmartInventory.Model;
 
 namespace SmartInventory.Web.Controllers
 {
+    //[Authorize]
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
@@ -15,6 +17,7 @@ namespace SmartInventory.Web.Controllers
             _productService = productService;
         }
 
+        
         public IActionResult Index()
         {
             return View();
@@ -40,6 +43,7 @@ namespace SmartInventory.Web.Controllers
             return Json(response);
         }
 
+        //[AllowAnonymous]
         public IActionResult Create()
         {
             return View();
