@@ -8,6 +8,7 @@ using SmartInventory.Model;
 namespace SmartInventory.Web.Controllers
 {
     //[Authorize]
+    [Authorize(Roles = "Admin")]
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
