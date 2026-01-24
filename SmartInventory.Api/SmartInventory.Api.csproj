@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.22" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartInventory.BLL\SmartInventory.BLL.csproj" />
+    <ProjectReference Include="..\SmartInventory.DAL\SmartInventory.DAL.csproj" />
+    <ProjectReference Include="..\SmartInventory.Contract\SmartInventory.Contract.csproj" />
   </ItemGroup>
 
 </Project>
