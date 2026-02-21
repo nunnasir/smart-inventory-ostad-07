@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SmartInventory.BLL.Helpers;
 using SmartInventory.Contract.Request.Account;
 using SmartInventory.Model;
-using System.Threading.Tasks;
 
 namespace SmartInventory.Web.Controllers;
 
@@ -62,6 +62,12 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterModel model)
     {
+        var (isValidEmail, emailError) = EmailValidator.Validate(model?.Email);
+        if (!isValidEmail)
+        {
+            ModelState.AddModelError(nameof(RegisterModel.Email), emailError ?? "Invalid email format.");
+        }
+
         if (!ModelState.IsValid)
         {
             return View(model);
@@ -89,7 +95,11 @@ public class AccountController : Controller
             return RedirectToAction("Index", "Home");
         }
 
-        return View();
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+        return View(model);
     }
 
     [HttpPost]

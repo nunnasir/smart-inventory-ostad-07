@@ -1,4 +1,4 @@
-﻿using SmartInventory.Contract.Request;
+using SmartInventory.Contract.Request;
 using SmartInventory.Model;
 
 namespace SmartInventory.BLL.Mapping;
@@ -15,6 +15,18 @@ public static class ContractMapping
             StockQuantity = request.StockQuantity,
             CreatedTime = DateTime.Now,
             CreatedBy = 1
+        };
+    }
+
+    public static UpdateProductRequest ToUpdateRequest(this Product product)
+    {
+        return new UpdateProductRequest
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            StockQuantity = product.StockQuantity
         };
     }
 }
